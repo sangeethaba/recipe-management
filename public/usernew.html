@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>User Dashboard - Digital Cookbook</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; padding: 0; background: #fafafa; color: #333;
+    display: flex; flex-direction: column; min-height: 100vh;
+  }
+  header {
+    background: #2c5530; color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  main {
+    flex-grow: 1;
+    padding: 2rem;
+  }
+  button#logoutBtn {
+    background: #b42e2e;
+    border: none;
+    padding: 8px 16px;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  button#logoutBtn:hover {
+    background: #8a2222;
+  }
+  .recipe-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(240px,1fr));
+    gap: 1rem;
+  }
+  .recipe-card {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+    padding: 1rem;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+  }
+  .recipe-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+  .recipe-card h3 {
+    margin-top: 0; margin-bottom: 0.5rem;
+  }
+
+  /* Modal styles */
+  #recipeModal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+  #recipeModal.active {
+    display: flex;
+  }
+  #recipeModalContent {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    color: #333;
+  }
+  #modalCloseBtn {
+    background: #b42e2e;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    float: right;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+  #modalTitle {
+    margin-top: 0;
+  }
+  #ingredientsList li {
+    margin-bottom: 0.3rem;
+  }
+  #reviewsList .review-card {
+    border-bottom: 1px solid #ddd;
+    padding: 0.5rem 0;
+  }
+  .rating {
+    color: #fbbf24;
+  }
+  .difficulty {
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 0.5rem;
+  }
+  .difficulty.easy { color: #34a853; }
+  .difficulty.medium { color: #fbbc04; }
+  .difficulty.hard { color: #ea4335; }
+</style>
+</head>
+<body>
+<header style="display:flex; justify-content:space-between; align-items:center; background:#2c5530; color:white; padding:0.75rem 1.5rem;">
+  <div>
+    <strong>Digital Cookbook</strong>
+    <span style="margin-left:1rem;">Welcome, <span id="usernameDisplay"></span></span>
+  </div>
+  <nav style="display:flex; gap:1rem; align-items:center;">
+    <a href="#recipeSection" style="color:white; text-decoration:none;">🍽 Recipes</a>
+    <button id="leaderboardNav" style="background:transparent; border:1px solid #fff; border-radius:4px; color:#fff; padding:4px 8px; cursor:pointer;">🏆 Leaderboard</button>
+    <button id="logoutBtn" style="background:#b42e2e; border:none; padding:6px 12px; color:white; border-radius:6px; cursor:pointer; font-weight:bold;">Logout</button>
+  </nav>
+</header>
+<main>
+  <h2 id="recipeSection">Browse Recipes</h2>
+
+  <!-- Search Filters -->
+  <div id="searchBar" style="margin-bottom:1rem; display:flex; flex-wrap:wrap; gap:0.5rem; align-items:flex-end;">
+    <div>
+      <label for="searchName">Name</label><br />
+      <input id="searchName" type="text" placeholder="e.g. Pizza" />
+    </div>
+    <div>
+      <label for="searchCuisine">Cuisine</label><br />
+      <select id="searchCuisine">
+        <option value="">Any</option>
+        <option>Italian</option>
+        <option>Chinese</option>
+        <option>Indian</option>
+        <option>Mexican</option>
+        <option>American</option>
+        <option>French</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div>
+      <label for="searchDifficulty">Difficulty</label><br />
+      <select id="searchDifficulty">
+        <option value="">Any</option>
+        <option>Easy</option>
+        <option>Medium</option>
+        <option>Hard</option>
+      </select>
+    </div>
+    <div>
+      <label for="searchIngredient">Ingredient</label><br />
+      <input id="searchIngredient" type="text" placeholder="e.g. Chicken" />
+    </div>
+    <button id="searchBtn" style="padding:8px 16px; background:#2c5530; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Search</button>
+    <button id="clearBtn" style="padding:8px 16px; background:#ccc; color:#000; border:none; border-radius:6px; cursor:pointer;">Clear</button>
+  </div>
+
+  <div id="recipeList" class="recipe-list"></div>
+</main>
+
+<!-- Recipe Detail Modal -->
+<div id="recipeModal">
+  <div id="recipeModalContent">
+    <button id="modalCloseBtn">Close</button>
+    <h2 id="modalTitle"></h2>
+    <div id="modalMeta"></div>
+
+    <h3>Ingredients</h3>
+    <div class="ingredients-section">
+      Servings:
+      <input type="number" id="servingsInput" min="1" style="width:60px;" />
+      <button id="updateServingsBtn">Update</button>
+    </div>
+    <ul id="ingredientsList"></ul>
+
+    <h3>Instructions</h3>
+    <p id="instructionsText"></p>
+
+    <h3>Reviews</h3>
+    <div id="reviewsList"></div>
+
+    <h4>Add Your Review</h4>
+    <div id="reviewForm">
+      <label for="reviewRating">Rating (1-5):</label>
+      <input type="number" id="reviewRating" min="1" max="5" step="0.5" style="width:70px;" />
+      <br />
+      <label for="reviewComment">Comment:</label><br />
+      <textarea id="reviewComment" rows="3" style="width:100%;"></textarea>
+      <br />
+      <button id="submitReviewBtn">Submit Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaderboard Modal -->
+<div id="leaderboardModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+  <div style="background:white; padding:1.5rem; border-radius:10px; max-width:600px; width:90%; max-height:80vh; overflow-y:auto;">
+    <button id="leaderboardClose" style="float:right; background:#b42e2e; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;">Close</button>
+    <h2>Chef Leaderboard</h2>
+    <div id="leaderboardList"></div>
+  </div>
+</div>
+
+<script>
+  const APIBASE = '/api/';
+
+  // Check authentication role
+  const username = sessionStorage.getItem('username');
+  const role = sessionStorage.getItem('user_role');
+  if (!username || (role !== 'user' && role !== 'admin')) {
+    window.location.href = 'login.html';
+  }
+  document.getElementById('usernameDisplay').textContent = username;
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    sessionStorage.clear();
+    window.location.href = 'login.html';
+  });
+
+  // Leaderboard modal handlers
+  const leaderboardModal = document.getElementById('leaderboardModal');
+  const leaderboardList = document.getElementById('leaderboardList');
+
+  async function openLeaderboard() {
+    try {
+      const res = await fetch('/api/leaderboard/admins');
+      const rows = await res.json();
+      if (!Array.isArray(rows) || rows.length === 0) {
+        leaderboardList.innerHTML = '<p>No leaderboard data yet.</p>';
+      } else {
+        leaderboardList.innerHTML = '<ol>' + rows.map(r => `
+          <li>
+            <strong>${r.username}</strong> }}}
+          </li>
+        `).join('') + '</ol>';
+      }
+    } catch (e) {
+      console.error('Error fetching leaderboard data', e);
+      leaderboardList.innerHTML = '<p>Error fetching leaderboard data.</p>';
+    }
+    leaderboardModal.style.display = 'flex';
+  }

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Digital Cookbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c5530 0%, #5a8f5e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b6b6b;
+            margin-bottom: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0dcd5;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6b6b6b;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: #2c5530;
+            border-bottom: 3px solid #2c5530;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c5530;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0dcd5;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2c5530;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2c5530;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: #1f3d22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 85, 48, 0.3);
+        }
+
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error, .success {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error {
+            background: #fee;
+            color: #c00;
+        }
+
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .error.show, .success.show {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            color: #6b6b6b;
+            padding: 20px;
+            display: none;
+        }
+
+        .password-note {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 0.5rem;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .role-option {
+            padding: 12px;
+            border: 2px solid #e0dcd5;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .role-option:hover {
+            border-color: #2c5530;
+            background: #f9f7f4;
+        }
+
+        .role-option input[type="radio"] {
+            display: none;
+        }
+
+        .role-option input[type="radio"]:checked + label {
+            color: #2c5530;
+            font-weight: 600;
+        }
+
+        .role-option.selected {
+            border-color: #2c5530;
+            background: #f0f8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">🍳</div>
+        <h1>Digital Cookbook</h1>
+        <p class="subtitle">Welcome! Please login or create an account</p>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('login')">Login</div>
+            <div class="tab" onclick="showTab('register')">Sign Up</div>
+        </div>
+        
+        <div class="error" id="errorMsg"></div>
+        <div class="success" id="successMsg"></div>
+        
+        <!-- Login Form -->
+        <div class="form-section active" id="loginForm">
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginUsername">Username or Email</label>
+                    <input type="text" id="loginUsername" required placeholder="Enter your username or email">
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                    <p class="password-note">Note: Password validation not implemented yet - any password works for testing</p>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    Login to Cookbook
+                </button>
+            </form>
+        </div>
+
+        <!-- Register Form -->
+        <div class="form-section" id="registerForm">
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="regUsername">Username *</label>
+                    <input type="text" id="regUsername" required minlength="3" placeholder="Choose a username (min 3 characters)">
+                </div>
+
+                <div class="form-group">
+                    <label for="regEmail">Email *</label>
+                    <input type="email" id="regEmail" required placeholder="your.email@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="regPassword">Password *</label>
+                    <input type="password" id="regPassword" required minlength="6" placeholder="Create a password (min 6 characters)">
+                </div>
+
+                <div class="form-group">
+                    <label>Account Type</label>
+                    <div class="role-selector">
+                        <div class="role-option selected" onclick="selectRole('user')">
+                            <input type="radio" name="role" value="user" id="roleUser" checked>
+                            <label for="roleUser">👤 Regular User</label>
+                        </div>
+                        <div class="role-option" onclick="selectRole('admin')">
+                            <input type="radio" name="role" value="admin" id="roleAdmin">
+                            <label for="roleAdmin">👑 Admin</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn" id="registerBtn">
+                    Create Account
+                </button>
+            </form>
+        </div>
+
+        <div class="loading" id="loadingMsg">Processing...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+
+        // Tab switching
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+            
+            hideMessages();
+        }
+
+        // Role selection
+        function selectRole(role) {
+            document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            document.getElementById('role' + (role === 'admin' ? 'Admin' : 'User')).checked = true;
+        }
+
+        // Handle Login
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username_or_email = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username_or_email: username_or_email, password: password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Store session info so admin.html and user.html can validate login state
+                    sessionStorage.setItem('user_id', result.user.user_id);
+                    sessionStorage.setItem('user_role', result.user.user_role);
+                    sessionStorage.setItem('username', result.user.username);
+                    sessionStorage.setItem('user_email', result.user.email);
+
+                    showSuccess('Login successful! Redirecting...');
+                    
+                    setTimeout(() => {
+                        if (result.user.user_role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'user.html';
+                        }
+                    }, 1000);
+                } else {
+                    showError(result.error || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Login failed. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Handle Registration
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const user_role = document.querySelector('input[name="role"]:checked').value;
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password, user_role })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showSuccess('Account created successfully! You can now login.');
+                    
+                    setTimeout(() => {
+                        showTab('login');
+                        document.getElementById('loginUsername').value = username;
+                    }, 2000);
+                } else {
+                    showError(result.error || 'Registration failed');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showError('Registration failed. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Helper functions
+        function showLoading(show) {
+            document.getElementById('loadingMsg').style.display = show ? 'block' : 'none';
+            document.getElementById('loginBtn').disabled = show;
+            document.getElementById('registerBtn').disabled = show;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMsg');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+            setTimeout(() => {
+                successDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMsg').classList.remove('show');
+            document.getElementById('successMsg').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
