@@ -1,23 +1,21 @@
+# 🍽 Digital Cookbook
 
----
+A full-stack recipe management system.
 
-# 🧠 Kannada
+## Features
+- Add recipes
+- Add ingredients
+- View recipes
+- Admin dashboard
 
-👉 `.env` GitHub ge upload madidre danger ❌  
-👉 adanna remove madbeku ✔️  
+## Tech Stack
+- Node.js
+- Express.js
+- MySQL
+- HTML, CSS, JS
 
----
+## Run Project
 
-# 🎉 FINAL
-
-👉 Your project is now:
-✔ Working  
-✔ Uploaded  
-✔ Almost professional  
-
----
-
-If you want next level:
-👉 I can help you **deploy this online (very useful for viva/demo)**  
-
-Just tell 👍
+```bash
+npm install
+node server.js
